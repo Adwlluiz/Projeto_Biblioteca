@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Gerenciamento de Biblioteca</title>
+    <link rel="stylesheet" href="sistemaBiblioteca.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Sistema de Gerenciamento de Biblioteca</h1>
+        
+        <div class="log-area">
+            <h3>LOGS</h3>
+            <div id="mensagem-container">
+                </div>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-button" onclick="openTab(event, 'cadastro')">Cadastro</button>
+            <button class="tab-button" onclick="openTab(event, 'emprestimo')">Empréstimo</button>
+            <button class="tab-button" onclick="openTab(event, 'devolucao')">Devolução</button>
+            <button class="tab-button" onclick="openTab(event, 'listagem')">Listagem/Edição</button>
+            <button class="tab-button" onclick="openTab(event, 'status')">Status</button>
+        </div>
+
+        <div class="tab-content" id="cadastro">
+            <div class="section">
+                <h3>Cadastrar Livro</h3>
+                <label for="nome-livro">Nome do Livro:</label>
+                <input type="text" id="nome-livro" placeholder="Ex: O Senhor dos Anéis">
+                <label for="autor-livro">Autor:</label>
+                <input type="text" id="autor-livro" placeholder="Ex: J. R. R. Tolkien">
+                <label for="ano-livro">Ano:</label>
+                <input type="text" id="ano-livro" placeholder="Ex: 1954">
+                <label for="genero-livro">Gênero:</label>
+                <input type="text" id="genero-livro" placeholder="Ex: Fantasia">
+                <button onclick="handleCadastrarLivro()">Cadastrar Livro</button>
+            </div>
+
+            <div class="section">
+                <h3>Cadastrar Cliente</h3>
+                <label for="nome-cliente-cadastro">Nome do Cliente:</label>
+                <input type="text" id="nome-cliente-cadastro" placeholder="Ex: Maria Silva">
+                <label for="email-cliente-cadastro">E-mail do Cliente:</label>
+                <input type="text" id="email-cliente-cadastro" placeholder="Ex: maria@email.com">
+                <label for="cpf-cliente-cadastro">CPF do Cliente (apenas números):</label>
+                <input type="text" id="cpf-cliente-cadastro" placeholder="Ex: 12345678900">
+                <button onclick="handleCadastrarCliente()">Cadastrar Cliente</button>
+            </div>
+        </div>
+
+        <div class="tab-content" id="emprestimo" style="display: none;">
+            <div class="section">
+                <h3>Registrar Empréstimo</h3>
+                <div class="autocomplete-container">
+                    <label for="nome-livro-emprestimo">Livro (Nome ou ID):</label>
+                    <input type="text" id="nome-livro-emprestimo" 
+                        placeholder="Ex: Dom Quixote (ID: 3)"
+                        oninput="showSuggestions('livro', this.value, 'livro-emprestimo-suggestions')">
+                    <div id="livro-emprestimo-suggestions" class="suggestions-list"></div>
+                </div>
+                
+                <div class="autocomplete-container">
+                    <label for="cliente-emprestimo">Cliente (Nome ou CPF):</label>
+                    <input type="text" id="cliente-emprestimo" 
+                        placeholder="Ex: Bob Souza (CPF: 55566677788)"
+                        oninput="showSuggestions('cliente', this.value, 'cliente-emprestimo-suggestions')">
+                    <div id="cliente-emprestimo-suggestions" class="suggestions-list"></div>
+                </div>
+                
+                <button onclick="handleRetirarLivro()">Registrar Empréstimo</button>
+            </div>
+        </div>
+
+        <div class="tab-content" id="devolucao" style="display: none;">
+            <div class="section">
+                <h3>Registrar Devolução</h3>
+                <div class="autocomplete-container">
+                    <label for="nome-livro-devolucao">Livro (Nome ou ID):</label>
+                    <input type="text" id="nome-livro-devolucao" 
+                        placeholder="Ex: Dom Quixote (ID: 3)"
+                        oninput="showSuggestions('livro', this.value, 'livro-devolucao-suggestions')">
+                    <div id="livro-devolucao-suggestions" class="suggestions-list"></div>
+                </div>
+                
+                <div class="autocomplete-container">
+                    <label for="cliente-devolucao">Cliente (Nome ou CPF):</label>
+                    <input type="text" id="cliente-devolucao" 
+                        placeholder="Ex: Bob Souza (CPF: 55566677788)"
+                        oninput="showSuggestions('cliente', this.value, 'cliente-devolucao-suggestions')">
+                    <div id="cliente-devolucao-suggestions" class="suggestions-list"></div>
+                </div>
+                
+                <div class="checkbox-container">
+                    <input type="checkbox" id="devolucao-no-prazo">
+                    <label for="devolucao-no-prazo">Devolvido no Prazo (Marcar para contagem de fidelidade)</label>
+                </div>
+                
+                <button onclick="handleDevolverLivro()">Registrar Devolução</button>
+            </div>
+        </div>
+
+        <div class="tab-content" id="listagem" style="display: none;">
+            <h3>Listagem e Gerenciamento</h3>
+            <div class="section">
+                <button onclick="biblioteca.listarItens('livros')">Listar Livros</button>
+                <button onclick="biblioteca.listarItens('clientes')">Listar Clientes</button>
+                <button onclick="biblioteca.listarItens('emprestimos_ativos')">Listar Empréstimos Ativos</button>
+                <button onclick="biblioteca.listarItens('historico_emprestimos')">Listar Histórico</button>
+            </div>
+            <div id="listagem-resultado">
+                </div>
+        </div>
+        
+        <div class="tab-content" id="status" style="display: none;">
+            <div class="section">
+                <h3>Status do Livro</h3>
+                <div class="autocomplete-container">
+                    <label for="nome-livro-status">Livro (Nome ou ID):</label>
+                    <input type="text" id="nome-livro-status" 
+                        placeholder="ID do Livro (Ex: 3)"
+                        oninput="showSuggestions('livro', this.value, 'livro-status-suggestions')">
+                    <div id="livro-status-suggestions" class="suggestions-list"></div>
+                </div>
+                <button onclick="handleVerStatusLivroUnificado()">Ver Status do Livro</button>
+            </div>
+
+            <div class="section">
+                <h3>Status do Cliente</h3>
+                <div class="autocomplete-container">
+                    <label for="cliente-status">Cliente (Nome ou CPF):</label>
+                    <input type="text" id="cliente-status" 
+                        placeholder="Nome ou CPF do cliente"
+                        oninput="showSuggestions('cliente', this.value, 'cliente-status-suggestions')">
+                    <div id="cliente-status-suggestions" class="suggestions-list"></div>
+                </div>
+                <button onclick="handleStatusCliente()">Ver Status do Cliente</button>
+            </div>
+        </div>
+        
+    </div>
+
+    <script src="sistemaBiblioteca.js"></script>
+</body>
+</html>
