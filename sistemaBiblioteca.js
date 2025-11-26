@@ -74,36 +74,9 @@ class Biblioteca {
     _validarCPF(cpf) {
         cpf = cpf.replace(/\D/g, ''); 
 
-        
-        if (cpf.length !== 11 || /^(\d)\1{10}$/.test(cpf)) {
+        if (cpf.length !== 11) {
             return false;
         }
-
-        let soma;
-        let resto;
-
-        
-        const calcularDigito = (limite) => {
-            soma = 0;
-            for (let i = 1; i <= limite; i++) {
-                soma += parseInt(cpf.substring(i - 1, i)) * ((limite + 1) - i);
-            }
-            resto = (soma * 10) % 11;
-            return (resto === 10 || resto === 11) ? 0 : resto;
-        };
-
-        
-        if (calcularDigito(9) !== parseInt(cpf.substring(9, 10))) return false;
-
-        
-        soma = 0;
-        for (let i = 1; i <= 10; i++) {
-            soma += parseInt(cpf.substring(i - 1, i)) * (12 - i);
-        }
-        resto = (soma * 10) % 11;
-        if ((resto === 10) || (resto === 11)) resto = 0;
-        
-        if (resto !== parseInt(cpf.substring(10, 11))) return false;
 
         return true;
     }
@@ -126,7 +99,7 @@ class Biblioteca {
         
         
         if (!this._validarCPF(cpfLimpo)) {
-            this.log('error', 'Erro: CPF ' + cpf + ' inválido. Verifique se o número possui 11 dígitos, se não são repetidos e se os dígitos verificadores estão corretos.');
+            this.log('error', 'Erro: CPF ' + cpf + ' inválido. Deve conter exatamente 11 dígitos.');
             return null;
         }
         
